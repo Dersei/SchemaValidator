@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 
@@ -11,17 +12,19 @@ namespace SchemaValidatorWPF
             return new TextRange(@this.Document.ContentStart, @this.Document.ContentEnd).Text;
         }
 
-        public static TextRange GetLineUnderCursor(this RichTextBox @this, MouseEventArgs e)
+        public static (int lineNumber, TextRange textRange) GetLineUnderCursor(this RichTextBox @this, MouseEventArgs e)
         {
             var position = @this.GetPositionFromPoint(e.GetPosition(@this), false);
-            if (position is null) return null;
+
+            if (position is null) return (-1, null);
             try
             {
-                return new TextRange(position.GetLineStartPosition(0), position.GetLineStartPosition(1));
+                position.GetLineStartPosition(-int.MaxValue, out var lineNumber);
+                return (-lineNumber + 1, new TextRange(position.GetLineStartPosition(0), position.GetLineStartPosition(1)));
             }
             catch
             {
-                return null;
+                return (-1, null);
             }
         }
 
