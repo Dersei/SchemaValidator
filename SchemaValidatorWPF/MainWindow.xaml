@@ -1,0 +1,47 @@
+﻿<Window x:Class="SchemaValidatorWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SchemaValidatorWPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="1000" WindowState="Maximized">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="20*"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Label Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Center">XML</Label>
+        <Label Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Center">Schema</Label>
+        <Label Grid.Column="2" Grid.Row="0" HorizontalContentAlignment="Center">Errors</Label>
+        <RichTextBox x:Name="XmlTextBox" Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto" MouseMove="XmlTextBox_OnMouseMove" 
+                     ToolTipService.ShowDuration="1000000" ToolTipService.InitialShowDelay="0" ToolTipService.BetweenShowDelay="0">
+            <RichTextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="2"/>
+                </Style>
+            </RichTextBox.Resources>
+        </RichTextBox>
+        <RichTextBox x:Name="SchemaTextBox" Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <RichTextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="2"/>
+                </Style>
+            </RichTextBox.Resources>
+        </RichTextBox>
+        <RichTextBox x:Name="ErrorTextBox" Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto" IsReadOnly="True">
+            <RichTextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="2"/>
+                </Style>
+            </RichTextBox.Resources>
+        </RichTextBox>
+        <Button x:Name="ValidateButton" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Click="ValidateButton_OnClick">Validate</Button>
+    </Grid>
+</Window>

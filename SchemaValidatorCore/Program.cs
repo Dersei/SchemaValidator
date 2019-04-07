@@ -1,8 +1,9 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace SchemaValidator
+namespace SchemaValidatorCore
 {
     internal class Program
     {
@@ -13,7 +14,8 @@ namespace SchemaValidator
         {
             _originalBackground = Console.BackgroundColor;
             _originalForeground = Console.ForegroundColor;
-            string xmlFilename;
+
+            string? xmlFilename;
             if (args.Length != 0)
             {
                 xmlFilename = args[0];
@@ -25,22 +27,25 @@ namespace SchemaValidator
             }
             Console.WriteLine("Schema file's name:");
             var schemaFilename = Console.ReadLine();
-            schemaFilename = "" +  (string.IsNullOrWhiteSpace(schemaFilename) ? xmlFilename : schemaFilename);
+            schemaFilename = string.IsNullOrWhiteSpace(schemaFilename) ? xmlFilename : schemaFilename;
             Console.WriteLine("Namespace");
             var namespaceName = Console.ReadLine();
 
             var sc = new XmlSchemaSet();
-            sc.Add(string.IsNullOrWhiteSpace(namespaceName) ? null : namespaceName, schemaFilename.EndsWith(".xsd") ? schemaFilename : schemaFilename + ".xsd");
+            sc.Add(string.IsNullOrWhiteSpace(namespaceName) ? null : namespaceName, schemaFilename?.EndsWith(".xsd") != true ? schemaFilename : schemaFilename + ".xsd");
 
             var settings = new XmlReaderSettings
             {
-                ValidationType = ValidationType.Schema, Schemas = sc, XmlResolver = new XmlUrlResolver()
+                ValidationType = ValidationType.Schema,
+                Schemas = sc,
+                XmlResolver = new XmlUrlResolver()
             };
+
             settings.ValidationEventHandler += OnValidationEvent;
             XmlReader reader;
             try
             {
-                reader = XmlReader.Create(xmlFilename.EndsWith(".xml") ? xmlFilename : xmlFilename + ".xml", settings);
+                reader = XmlReader.Create(xmlFilename?.EndsWith(".xml") != true ? xmlFilename : xmlFilename + ".xml", settings);
             }
             catch (Exception ex)
             {
