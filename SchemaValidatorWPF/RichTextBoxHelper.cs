@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Xml.Schema;
 
 namespace SchemaValidatorWPF
 {
@@ -12,6 +14,14 @@ namespace SchemaValidatorWPF
             return new TextRange(@this.Document.ContentStart, @this.Document.ContentEnd).Text;
         }
 
+        public static TextRange ColorFragment(this RichTextBox @this, int lineNumber)
+        {
+            @this.CaretPosition = @this.Document.ContentStart;
+            var range = new TextRange(@this.CaretPosition.GetLineStartPosition(lineNumber - 1 < 0 ? 0 : lineNumber - 1),
+                @this.CaretPosition.GetLineStartPosition(lineNumber));
+            range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.Red));
+            return range;
+        }
         public static (int lineNumber, TextRange textRange) GetLineUnderCursor(this RichTextBox @this, MouseEventArgs e)
         {
             var position = @this.GetPositionFromPoint(e.GetPosition(@this), false);

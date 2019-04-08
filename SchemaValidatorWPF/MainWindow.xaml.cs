@@ -62,18 +62,16 @@ namespace SchemaValidatorWPF
             ErrorTextBox.Document.Blocks.Clear();
             BackToBlack();
 
-            var xmlFile = new TextRange(XmlTextBox.Document.ContentStart, XmlTextBox.Document.ContentEnd).Text;
+            var xmlFile = XmlTextBox.GetText();
 
 
             var sc = new XmlSchemaSet();
 
             foreach (var schemaBox in _schemasBoxes)
             {
-                var schemaFile = new TextRange(schemaBox.Document.ContentStart, schemaBox.Document.ContentEnd).Text;
+                var schemaFile = schemaBox.GetText();
                 sc.Add(GetNamespace(schemaFile), XmlReader.Create(new StringReader(schemaFile)));
             }
-
-
 
             var settings = new XmlReaderSettings
             {
@@ -89,25 +87,41 @@ namespace SchemaValidatorWPF
             }
             catch (XmlSchemaValidationException ex)
             {
-                Console.WriteLine("###Creating exception: " + ex.Message);
+                Console.WriteLine(ex.Message);
                 WriteErrors(ex, true);
                 return;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("###Creating exception: " + ex.Message);
+                Console.WriteLine(ex.Message);
                 WriteErrors(ex.Message);
                 return;
             }
 
             Console.WriteLine(reader.BaseURI);
-            while (reader.Read())
+            try
             {
+                while (reader.Read())
+                {
+                }
+
+            }
+            catch (XmlException ex)
+            {
+                WriteErrors(ex);
+            }
+
+            if (_isValid)
+            {
+                WriteSuccess();
             }
         }
 
+        private bool _isValid = true;
+
         private void OnValidationEvent(object sender, ValidationEventArgs e)
         {
+            _isValid = false;
             Console.WriteLine(e.Message);
             var value = (e.Exception.LineNumber, ColorFragment(e.Exception).Text.Trim());
             if (!_errorTips.ContainsKey(value))
@@ -115,6 +129,13 @@ namespace SchemaValidatorWPF
                 _errorTips.Add(value, e.Exception.Message);
             }
             WriteErrors(e.Exception);
+        }
+
+        private void WriteSuccess()
+        {
+            var range = ErrorTextBox.AddText("Success");
+            range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.Green));
+            range.ApplyPropertyValue(TextElement.FontSizeProperty, 36.0);
         }
 
         private void WriteErrors(XmlSchemaException ex, bool schemaError = false)
@@ -130,6 +151,13 @@ namespace SchemaValidatorWPF
             _errorDescription.Add((ex.LineNumber, ex.Message), range);
         }
 
+        private void WriteErrors(XmlException ex)
+        {
+            var range = ErrorTextBox.AddText($@"XML Error{Environment.NewLine}Line: {ex.LineNumber}{Environment.NewLine}    {ex.Message}");
+            ErrorTextBox.AddText(Environment.NewLine);
+            range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.OrangeRed));
+             _errorDescription.Add((ex.LineNumber, ex.Message), range);
+        }
         private void WriteErrors(string message)
         {
             var range = ErrorTextBox.AddText($@"Exception: {Environment.NewLine}    {message}");
