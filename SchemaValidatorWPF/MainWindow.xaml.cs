@@ -33,7 +33,7 @@ namespace SchemaValidatorWPF
             };
             XmlTextBox.ToolTip = _toolTip;
             _schemasBoxes.Add(SchemaTextBox);
-            Style paragraphStyle = new Style { TargetType = typeof(Paragraph) };
+            var paragraphStyle = new Style { TargetType = typeof(Paragraph) };
             paragraphStyle.Setters.Add(new Setter
             {
                 Property = Block.MarginProperty,
@@ -42,7 +42,7 @@ namespace SchemaValidatorWPF
             Resources.Add(typeof(Paragraph), paragraphStyle);
         }
 
-        private string GetNamespace(string schemaFile)
+        private static string GetNamespace(string schemaFile)
         {
             var firstIndex = schemaFile.IndexOf("targetNamespace", StringComparison.Ordinal) + "targetNamespace=\"".Length;
             var lastIndex = schemaFile.IndexOf("\"", firstIndex, StringComparison.Ordinal);
@@ -63,7 +63,6 @@ namespace SchemaValidatorWPF
             BackToBlack();
 
             var xmlFile = XmlTextBox.GetText();
-
 
             var sc = new XmlSchemaSet();
 
@@ -98,17 +97,19 @@ namespace SchemaValidatorWPF
                 return;
             }
 
-            Console.WriteLine(reader.BaseURI);
             try
             {
                 while (reader.Read())
                 {
                 }
-
             }
             catch (XmlException ex)
             {
                 WriteErrors(ex);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             if (_isValid)
@@ -156,7 +157,7 @@ namespace SchemaValidatorWPF
             var range = ErrorTextBox.AddText($@"XML Error{Environment.NewLine}Line: {ex.LineNumber}{Environment.NewLine}    {ex.Message}");
             ErrorTextBox.AddText(Environment.NewLine);
             range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.OrangeRed));
-             _errorDescription.Add((ex.LineNumber, ex.Message), range);
+            _errorDescription.Add((ex.LineNumber, ex.Message), range);
         }
         private void WriteErrors(string message)
         {
@@ -192,6 +193,7 @@ namespace SchemaValidatorWPF
             }
             _toolTip.Visibility = Visibility.Hidden;
             _toolTip.Content = "";
+
             foreach (var item in _errorDescription.Values)
             {
                 BoldFragment(item, false);
@@ -199,24 +201,21 @@ namespace SchemaValidatorWPF
 
             var (lineNumber, range) = XmlTextBox.GetLineUnderCursor(e);
 
-            if (range?.GetPropertyValue(TextElement.ForegroundProperty).ToString() == "#FFFF0000")
-            {
-                _toolTip.Visibility = Visibility.Visible;
-                if (_errorTips.TryGetValue((lineNumber, range.Text.Trim()), out var text))
-                {
-                    _toolTip.Content = text.Split('.').First();
-                }
+            if (range?.GetPropertyValue(TextElement.ForegroundProperty).ToString() != "#FFFF0000") return;
+            _toolTip.Visibility = Visibility.Visible;
 
-                if (_errorDescription.TryGetValue((lineNumber, text ?? ""), out var errorRange))
-                {
-                    BoldFragment(errorRange, true);
-                }
+            if (_errorTips.TryGetValue((lineNumber, range.Text.Trim()), out var text))
+            {
+                _toolTip.Content = text.Split('.').First();
+            }
+
+            if (_errorDescription.TryGetValue((lineNumber, text ?? ""), out var errorRange))
+            {
+                BoldFragment(errorRange, true);
             }
 
 
         }
-
-
 
         private void AddSchemaButton_Click(object sender, RoutedEventArgs e)
         {
@@ -226,7 +225,6 @@ namespace SchemaValidatorWPF
             };
 
             SchemaGrid.RowDefinitions.Add(new RowDefinition());
-
 
             Grid.SetRow(schemaBox, SchemaGrid.RowDefinitions.Count - 1);
             SchemaGrid.Children.Add(schemaBox);

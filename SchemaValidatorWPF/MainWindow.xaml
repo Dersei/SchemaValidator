@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SchemaValidatorWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000" WindowState="Maximized">
+        Title="SchemaValidator" Height="600" Width="1000" WindowState="Maximized">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
