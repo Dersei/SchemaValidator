@@ -16,7 +16,7 @@ namespace SchemaValidatorWPF
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         private readonly ToolTip _toolTip;
         private readonly Dictionary<(int lineNumber, string lineText), string> _errorTips = new Dictionary<(int, string), string>();
@@ -50,17 +50,12 @@ namespace SchemaValidatorWPF
             return @namespace;
         }
 
-        private void BackToBlack()
-        {
-            new TextRange(XmlTextBox.Document.ContentStart, XmlTextBox.Document.ContentEnd).ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.Black));
-        }
-
         private void ValidateButton_OnClick(object sender, RoutedEventArgs e)
         {
             _errorTips.Clear();
             _errorDescription.Clear();
             ErrorTextBox.Document.Blocks.Clear();
-            BackToBlack();
+            XmlTextBox.ColorWhole(Colors.Black);
 
             var xmlFile = XmlTextBox.GetText();
 
@@ -124,7 +119,7 @@ namespace SchemaValidatorWPF
         {
             _isValid = false;
             Console.WriteLine(e.Message);
-            var value = (e.Exception.LineNumber, ColorFragment(e.Exception).Text.Trim());
+            var value = (e.Exception.LineNumber, XmlTextBox.ColorFragment(e.Exception.LineNumber, Colors.Red).Text.Trim());
             if (!_errorTips.ContainsKey(value))
             {
                 _errorTips.Add(value, e.Exception.Message);
@@ -159,30 +154,13 @@ namespace SchemaValidatorWPF
             range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.OrangeRed));
             _errorDescription.Add((ex.LineNumber, ex.Message), range);
         }
+
         private void WriteErrors(string message)
         {
             var range = ErrorTextBox.AddText($@"Exception: {Environment.NewLine}    {message}");
             range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.Red));
             ErrorTextBox.AddText(Environment.NewLine);
         }
-
-        private TextRange ColorFragment(XmlSchemaException ex)
-        {
-            var index = ex.LineNumber;
-            XmlTextBox.CaretPosition = XmlTextBox.Document.ContentStart;
-            var range = new TextRange(XmlTextBox.CaretPosition.GetLineStartPosition(index - 1 < 0 ? 0 : index - 1),
-                XmlTextBox.CaretPosition.GetLineStartPosition(index));
-            range.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.Red));
-            return range;
-        }
-
-        private TextRange BoldFragment(TextRange range, bool bold)
-        {
-            range.ApplyPropertyValue(TextElement.FontWeightProperty, bold ? FontWeights.Bold : FontWeights.Normal);
-            return range;
-        }
-
-
 
         private void XmlTextBox_OnMouseMove(object sender, MouseEventArgs e)
         {
@@ -196,7 +174,7 @@ namespace SchemaValidatorWPF
 
             foreach (var item in _errorDescription.Values)
             {
-                BoldFragment(item, false);
+                item.ChangeWeight(FontWeights.Normal);
             }
 
             var (lineNumber, range) = XmlTextBox.GetLineUnderCursor(e);
@@ -211,7 +189,7 @@ namespace SchemaValidatorWPF
 
             if (_errorDescription.TryGetValue((lineNumber, text ?? ""), out var errorRange))
             {
-                BoldFragment(errorRange, true);
+                errorRange.ChangeWeight(FontWeights.Bold);
             }
 
 
