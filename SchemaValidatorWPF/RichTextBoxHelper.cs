@@ -13,6 +13,13 @@ namespace SchemaValidatorWPF
             return new TextRange(@this.Document.ContentStart, @this.Document.ContentEnd).Text;
         }
 
+        /// <summary>
+        /// Changes color of fragment
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="lineNumber"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
         public static TextRange ColorFragment(this RichTextBox @this, int lineNumber, Color color)
         {
             @this.CaretPosition = @this.Document.ContentStart;
@@ -24,7 +31,7 @@ namespace SchemaValidatorWPF
 
         public static void ColorWhole(this RichTextBox @this, Color color)
         {
-            new TextRange(XmlTextBox.Document.ContentStart, @this.Document.ContentEnd).ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
+            new TextRange(@this.Document.ContentStart, @this.Document.ContentEnd).ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
         }
 
         public static (int lineNumber, TextRange textRange) GetLineUnderCursor(this RichTextBox @this, MouseEventArgs e)

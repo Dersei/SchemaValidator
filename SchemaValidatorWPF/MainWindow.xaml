@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SchemaValidatorWPF"
         mc:Ignorable="d"
         Title="SchemaValidator" Height="600" Width="1000" WindowState="Maximized">
-    <Grid x:Name="MainGrid">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition x:Name="SchemaColumn"></ColumnDefinition>
@@ -21,7 +21,7 @@
         <Label Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Center">XML</Label>
         <Label Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Center">Schema</Label>
         <Label Grid.Column="2" Grid.Row="0" HorizontalContentAlignment="Center">Errors</Label>
-        <RichTextBox x:Name="XmlTextBox" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto" MouseMove="XmlTextBox_OnMouseMove" 
+        <RichTextBox x:Name="XmlTextBox" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" MouseMove="XmlTextBox_OnMouseMove" 
                      ToolTipService.ShowDuration="1000000" ToolTipService.InitialShowDelay="0" ToolTipService.BetweenShowDelay="0">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">

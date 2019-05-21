@@ -32,9 +32,10 @@ namespace SchemaValidatorWPF
                 Visibility = Visibility.Hidden
             };
             XmlTextBox.ToolTip = _toolTip;
+            XmlTextBox.Document.PageWidth = 1000; //To disable text wrapping in most situations
             _schemasBoxes.Add(SchemaTextBox);
             var paragraphStyle = new Style { TargetType = typeof(Paragraph) };
-            paragraphStyle.Setters.Add(new Setter
+            paragraphStyle.Setters.Add(new Setter //sets size of margins
             {
                 Property = Block.MarginProperty,
                 Value = new Thickness(2)
@@ -42,6 +43,11 @@ namespace SchemaValidatorWPF
             Resources.Add(typeof(Paragraph), paragraphStyle);
         }
 
+        /// <summary>
+        /// Reads target namespace declared in schema text
+        /// </summary>
+        /// <param name="schemaFile"></param>
+        /// <returns></returns>
         private static string GetNamespace(string schemaFile)
         {
             var firstIndex = schemaFile.IndexOf("targetNamespace", StringComparison.Ordinal) + "targetNamespace=\"".Length;
@@ -61,10 +67,18 @@ namespace SchemaValidatorWPF
 
             var sc = new XmlSchemaSet();
 
-            foreach (var schemaBox in _schemasBoxes)
+            foreach (var schemaBox in _schemasBoxes) //reads schema from each box and adds it to set
             {
                 var schemaFile = schemaBox.GetText();
-                sc.Add(GetNamespace(schemaFile), XmlReader.Create(new StringReader(schemaFile)));
+                try //Necessary in case of errors in schema
+                {
+                    sc.Add(GetNamespace(schemaFile), XmlReader.Create(new StringReader(schemaFile)));
+                }
+                catch (XmlSchemaException ex)
+                {
+                    WriteErrors(ex, true);
+                    return;
+                }
             }
 
             var settings = new XmlReaderSettings
@@ -73,21 +87,22 @@ namespace SchemaValidatorWPF
                 Schemas = sc,
                 XmlResolver = new XmlUrlResolver()
             };
+
             settings.ValidationEventHandler += OnValidationEvent;
+
             XmlReader reader;
+
             try
             {
                 reader = XmlReader.Create(new StringReader(xmlFile), settings);
             }
-            catch (XmlSchemaValidationException ex)
+            catch (XmlSchemaException ex) //Sometimes happens
             {
-                Console.WriteLine(ex.Message);
                 WriteErrors(ex, true);
                 return;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 WriteErrors(ex.Message);
                 return;
             }
@@ -118,7 +133,7 @@ namespace SchemaValidatorWPF
         private void OnValidationEvent(object sender, ValidationEventArgs e)
         {
             _isValid = false;
-            Console.WriteLine(e.Message);
+
             var value = (e.Exception.LineNumber, XmlTextBox.ColorFragment(e.Exception.LineNumber, Colors.Red).Text.Trim());
             if (!_errorTips.ContainsKey(value))
             {
@@ -191,8 +206,6 @@ namespace SchemaValidatorWPF
             {
                 errorRange.ChangeWeight(FontWeights.Bold);
             }
-
-
         }
 
         private void AddSchemaButton_Click(object sender, RoutedEventArgs e)

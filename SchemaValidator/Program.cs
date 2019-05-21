@@ -4,7 +4,7 @@ using System.Xml.Schema;
 
 namespace SchemaValidator
 {
-    internal class Program
+    internal static class Program
     {
         private static ConsoleColor _originalBackground;
         private static ConsoleColor _originalForeground;
