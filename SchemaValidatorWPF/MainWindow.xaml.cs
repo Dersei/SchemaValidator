@@ -33,6 +33,7 @@ namespace SchemaValidatorWPF
             };
             XmlTextBox.ToolTip = _toolTip;
             XmlTextBox.Document.PageWidth = 1000; //To disable text wrapping in most situations
+            SchemaTextBox.Document.PageWidth = 1000;
             _schemasBoxes.Add(SchemaTextBox);
             var paragraphStyle = new Style { TargetType = typeof(Paragraph) };
             paragraphStyle.Setters.Add(new Setter //sets size of margins
@@ -62,6 +63,7 @@ namespace SchemaValidatorWPF
             _errorDescription.Clear();
             ErrorTextBox.Document.Blocks.Clear();
             XmlTextBox.ColorWhole(Colors.Black);
+            _isValid = true;
 
             var xmlFile = XmlTextBox.GetText();
 
@@ -75,10 +77,21 @@ namespace SchemaValidatorWPF
                     if (!string.IsNullOrWhiteSpace(schemaFile))
                         sc.Add(GetNamespace(schemaFile), XmlReader.Create(new StringReader(schemaFile)));
                 }
-                catch (XmlSchemaException ex)
+                catch (Exception ex)
                 {
-                    WriteErrors(ex, true);
-                    return;
+
+                    switch (ex)
+                    {
+                        case XmlSchemaException exs:
+                            WriteErrors(exs, true);
+                            return;
+                        case XmlException exx:
+                            WriteErrors(new XmlSchemaException(exx.Message, exx, exx.LineNumber, exx.LinePosition), true);
+                            return;
+                        default:
+                            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                    }
                 }
             }
 
@@ -211,11 +224,11 @@ namespace SchemaValidatorWPF
 
         private void AddSchemaButton_Click(object sender, RoutedEventArgs e)
         {
-            var schemaBox = new RichTextBox()
+            var schemaBox = new RichTextBox
             {
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Document = {PageWidth = 1000}
             };
-
             SchemaGrid.RowDefinitions.Add(new RowDefinition());
 
             Grid.SetRow(schemaBox, SchemaGrid.RowDefinitions.Count - 1);
