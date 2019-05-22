@@ -8,3 +8,4 @@ The WPF app allows to past XML file text and one or more Schema files. Then afte
 Regarding the code, in console apps, it is as simple as possible. All apps were written to help in one of the tasks for a study subject - human-computer communication and there wasn't much need for anything special.
 
 The apps have been tested on a few different files and they worked well, therefore they should work for files with similar features.
+The exemplary files could be: [Microsoft Docs](https://docs.microsoft.com/pl-pl/dotnet/standard/data/xml/xml-schema-xsd-validation-with-xmlschemaset).
