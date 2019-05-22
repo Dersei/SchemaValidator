@@ -72,7 +72,8 @@ namespace SchemaValidatorWPF
                 var schemaFile = schemaBox.GetText();
                 try //Necessary in case of errors in schema
                 {
-                    sc.Add(GetNamespace(schemaFile), XmlReader.Create(new StringReader(schemaFile)));
+                    if (!string.IsNullOrWhiteSpace(schemaFile))
+                        sc.Add(GetNamespace(schemaFile), XmlReader.Create(new StringReader(schemaFile)));
                 }
                 catch (XmlSchemaException ex)
                 {
@@ -89,7 +90,6 @@ namespace SchemaValidatorWPF
             };
 
             settings.ValidationEventHandler += OnValidationEvent;
-
             XmlReader reader;
 
             try
@@ -116,6 +116,7 @@ namespace SchemaValidatorWPF
             catch (XmlException ex)
             {
                 WriteErrors(ex);
+                return;
             }
             catch (Exception ex)
             {
